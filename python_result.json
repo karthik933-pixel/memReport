@@ -1,0 +1,17 @@
+{
+  "language": "Python",
+  "drive": "D:\\",
+  "elapsed_ms": 4189.289,
+  "total_files": 99293,
+  "total_dirs": 9705,
+  "errors_skipped": 2,
+  "files_per_sec": 23701.6,
+  "peak_python_heap_kb": 51.09,
+  "top_5_files": [
+    "$I1D368X.zip",
+    "$I3SNTH3",
+    "$I4K22MZ.zip",
+    "$I90CLTU.lnk",
+    "$IBB3I3D"
+  ]
+}
