@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>D: Drive Scan — Python vs Rust Benchmark</title>
+  <style>
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --muted: #94a3b8;
+      --py: #3b82f6; --rust: #f97316; --green: #22c55e; --border: #334155;
+    }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 2rem; }
+    .container { max-width: 920px; margin: 0 auto; }
+    h1 { margin-bottom: 0.25rem; }
+    .subtitle { color: var(--muted); margin-bottom: 1.5rem; }
+    .banner { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid var(--green); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .banner h2 { margin: 0 0 0.5rem 0; color: var(--green); font-size: 1.5rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .card h3 { margin-top: 0; }
+    .bar-wrap { background: #0f172a; border-radius: 8px; height: 28px; overflow: hidden; margin: 0.5rem 0 1rem 0; }
+    .bar { height: 100%; display: flex; align-items: center; padding-left: 10px; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
+    th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #0f172a; color: var(--muted); font-weight: 600; }
+    ol { margin: 0.5rem 0 0 1.25rem; padding: 0; }
+    li { margin-bottom: 0.35rem; font-family: Consolas, monospace; word-break: break-all; }
+    .fallback { background: var(--card); border: 1px dashed var(--border); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: none; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>D:\ Drive Scan Benchmark</h1>
+  <div class="subtitle">Recursive filesystem traversal &amp; top 5 lexicographical filenames</div>
+
+  <div id="fallback" class="fallback">
+    <strong>Local file mode detected:</strong> Select <code>python_result.json</code> and <code>rust_result.json</code> to load results:<br><br>
+    Python JSON: <input type="file" id="pyInput" accept=".json" />
+    &nbsp;&nbsp;Rust JSON: <input type="file" id="rustInput" accept=".json" />
+  </div>
+
+  <div id="dashboard" style="display:none;">
+    <div class="banner">
+      <h2 id="winnerTitle">Calculating...</h2>
+      <div id="winnerSub" style="color: var(--muted);"></div>
+    </div>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h3>Execution Time Comparison (Lower is Better)</h3>
+      <div>Python (<span id="pyMsLabel"></span>)</div>
+      <div class="bar-wrap"><div id="pyBar" class="bar" style="background: var(--py);"></div></div>
+      <div>Rust (<span id="rustMsLabel"></span>)</div>
+      <div class="bar-wrap"><div id="rustBar" class="bar" style="background: var(--rust);"></div></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th style="color: var(--py);">Python (os.scandir)</th>
+          <th style="color: var(--rust);">Rust (std::fs)</th>
+        </tr>
+      </thead>
+      <tbody id="metricsBody"></tbody>
+    </table>
+
+    <div class="grid">
+      <div class="card">
+        <h3 style="color: var(--py);">Top 5 Filenames (Python)</h3>
+        <ol id="pyTop5"></ol>
+      </div>
+      <div class="card">
+        <h3 style="color: var(--rust);">Top 5 Filenames (Rust)</h3>
+        <ol id="rustTop5"></ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let pyData = null, rustData = null;
+
+  function render() {
+    if (!pyData || !rustData) return;
+    document.getElementById("dashboard").style.display = "block";
+
+    const pyTime = pyData.elapsed_ms;
+    const rustTime = rustData.elapsed_ms;
+    const faster = rustTime < pyTime ? "Rust" : "Python";
+    const slowerTime = Math.max(pyTime, rustTime);
+    const fasterTime = Math.min(pyTime, rustTime);
+
+    // Percentage faster = ((slow - fast) / slow) * 100, plus speedup multiplier (slow / fast)
+    const pctFaster = (((slowerTime - fasterTime) / slowerTime) * 100).toFixed(2);
+    const multiplier = (slowerTime / fasterTime).toFixed(2);
+    const diffMs = Math.abs(pyTime - rustTime).toFixed(2);
+
+    document.getElementById("winnerTitle").textContent =
+      `${faster} ran ${pctFaster}% faster (${multiplier}x speedup)`;
+    document.getElementById("winnerSub").textContent =
+      `${faster} finished ${diffMs} ms earlier across ${rustData.total_files.toLocaleString()} files.`;
+
+    const maxTime = Math.max(pyTime, rustTime);
+    document.getElementById("pyMsLabel").textContent = `${pyTime.toFixed(2)} ms`;
+    document.getElementById("rustMsLabel").textContent = `${rustTime.toFixed(2)} ms`;
+    document.getElementById("pyBar").style.width = `${Math.max((pyTime / maxTime) * 100, 8)}%`;
+    document.getElementById("pyBar").textContent = `${pyTime.toFixed(2)} ms`;
+    document.getElementById("rustBar").style.width = `${Math.max((rustTime / maxTime) * 100, 8)}%`;
+    document.getElementById("rustBar").textContent = `${rustTime.toFixed(2)} ms`;
+
+    const rows = [
+      ["Execution Time", `${pyTime.toFixed(3)} ms`, `${rustTime.toFixed(3)} ms`],
+      ["Throughput", `${pyData.files_per_sec.toLocaleString()} files/sec`, `${rustData.files_per_sec.toLocaleString()} files/sec`],
+      ["Total Files Scanned", pyData.total_files.toLocaleString(), rustData.total_files.toLocaleString()],
+      ["Total Directories", pyData.total_dirs.toLocaleString(), rustData.total_dirs.toLocaleString()],
+      ["Skipped / Access Denied", pyData.errors_skipped.toLocaleString(), rustData.errors_skipped.toLocaleString()],
+      ["Tracked Heap Overhead", `${pyData.peak_python_heap_kb} KB (tracemalloc)`, "Zero-overhead stack/heap (native)"]
+    ];
+
+    document.getElementById("metricsBody").innerHTML = rows.map(
+      r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`
+    ).join("");
+
+    document.getElementById("pyTop5").innerHTML = pyData.top_5_files.map(f => `<li>${f}</li>`).join("");
+    document.getElementById("rustTop5").innerHTML = rustData.top_5_files.map(f => `<li>${f}</li>`).join("");
+  }
+
+  // Try fetching automatically (works when opened via local HTTP server)
+  Promise.all([
+    fetch("python_result.json").then(r => r.json()),
+    fetch("rust_result.json").then(r => r.json())
+  ]).then(([py, rust]) => {
+    pyData = py;
+    rustData = rust;
+    render();
+  }).catch(() => {
+    document.getElementById("fallback").style.display = "block";
+  });
+
+  document.getElementById("pyInput").addEventListener("change", e => {
+    const reader = new FileReader();
+    reader.onload = ev => { pyData = JSON.parse(ev.target.result); render(); };
+    reader.readAsText(e.target.files[0]);
+  });
+
+  document.getElementById("rustInput").addEventListener("change", e => {
+    const reader = new FileReader();
+    reader.onload = ev => { rustData = JSON.parse(ev.target.result); render(); };
+    reader.readAsText(e.target.files[0]);
+  });
+</script>
+</body>
+</html>
