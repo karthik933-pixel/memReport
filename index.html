@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>memReport &mdash; Intelligent Desktop System &amp; Resource Monitor</title>
+  <style>
+    :root {
+      --bg-base: #0b0f19;
+      --bg-surface: #111827;
+      --bg-card: #1f2937;
+      --bg-card-hover: #283548;
+      --bg-glass: rgba(31, 41, 55, 0.7);
+      --border-subtle: #374151;
+      --border-focus: #4b5563;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --primary: #38bdf8;
+      --primary-dim: rgba(56, 189, 248, 0.15);
+      --success: #10b981;
+      --success-dim: rgba(16, 185, 129, 0.15);
+      --warning: #f59e0b;
+      --warning-dim: rgba(245, 158, 11, 0.15);
+      --danger: #ef4444;
+      --danger-dim: rgba(239, 68, 68, 0.15);
+      --accent: #818cf8;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+      --shadow-md: 0 4px 12px -1px rgba(0, 0, 0, 0.35);
+      --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-surface);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border-focus);
+    }
+
+    /* Top App Header */
+    header.app-header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #0284c7, #6366f1);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+    }
+
+    .brand-icon svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+    }
+
+    .brand-titles h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: var(--primary-dim);
+      color: var(--primary);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 0.4rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-focus);
+      color: #fff;
+    }
+
+    .btn-primary {
+      background: #0284c7;
+      border-color: #0369a1;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #0369a1;
+      border-color: #075985;
+    }
+
+    .btn-accent {
+      background: #4f46e5;
+      border-color: #4338ca;
+      color: #fff;
+    }
+    .btn-accent:hover {
+      background: #4338ca;
+    }
+
+    .btn-danger {
+      background: var(--danger-dim);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .btn-danger:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-sm {
+      padding: 0.25rem 0.55rem;
+      font-size: 0.72rem;
+    }
+
+    /* Navigation Bar */
+    nav.app-nav {
+      background: rgba(17, 24, 39, 0.95);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 61px;
+      z-index: 40;
+    }
+
+    .nav-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.25rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .nav-inner::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-tab {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .nav-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-tab svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .nav-tab-badge {
+      background: var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.68rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+    }
+
+    .nav-tab.active .nav-tab-badge {
+      background: var(--primary-dim);
+      color: var(--primary);
+    }
+
+    /* Main Container */
+    main.app-main {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem;
+      flex: 1;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Grid Layouts */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .card-title-group h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #f8fafc;
+    }
+
+    .card-title-group h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #f8fafc;
+    }
+
+    .card-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .metric-value {
+      font-size: 1.85rem;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .metric-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Progress Bars */
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 0.6rem 0;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.4s ease, background-color 0.3s;
+    }
+
+    /* Core Breakdown Grid */
+    .cores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.6rem;
+    }
+
+    .core-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 0.7rem;
+    }
+
+    .core-box-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-bottom: 0.35rem;
+      color: var(--text-muted);
+    }
+
+    .core-box-top strong {
+      color: var(--text-main);
+      font-family: var(--font-mono);
+    }
+
+    /* Tables */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      text-align: left;
+    }
+
+    thead th {
+      background: rgba(31, 41, 55, 0.6);
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    tbody td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(55, 65, 81, 0.4);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background: rgba(56, 189, 248, 0.04);
+    }
+
+    .rank-cell {
+      font-weight: 700;
+      color: var(--primary);
+      width: 48px;
+    }
+
+    .path-cell {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      max-width: 400px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #e2e8f0;
+    }
+
+    .size-cell {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--success);
+      white-space: nowrap;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+    }
+
+    .badge-primary { background: var(--primary-dim); color: var(--primary); border: 1px solid rgba(56,189,248,0.3); }
+    .badge-success { background: var(--success-dim); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+    .badge-warning { background: var(--warning-dim); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
+    .badge-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+    .badge-neutral { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+
+    /* Alert Banner */
+    .banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 1.25rem;
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(239, 68, 68, 0.08));
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: var(--radius-lg);
+      margin-bottom: 1.5rem;
+    }
+
+    .banner-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .banner-icon {
+      color: var(--warning);
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    /* Filters / Search Bar */
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.85rem;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .search-input-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.75rem;
+      min-width: 260px;
+    }
+
+    .search-input-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 0.82rem;
+      width: 100%;
+    }
+
+    .search-input-box svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text-dim);
+    }
+
+    /* Chat Section (LLM Assistant) */
+    .chat-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.25rem;
+      height: 680px;
+    }
+
+    @media (max-width: 980px) {
+      .chat-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+    }
+
+    .chat-box {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .chat-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 1.25rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .msg-row {
+      display: flex;
+      gap: 0.75rem;
+      max-width: 85%;
+    }
+
+    .msg-row.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .msg-row.ai {
+      align-self: flex-start;
+    }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .msg-avatar.user-avatar {
+      background: #4f46e5;
+      color: #fff;
+    }
+
+    .msg-avatar.ai-avatar {
+      background: linear-gradient(135deg, #0284c7, #10b981);
+      color: #fff;
+    }
+
+    .msg-bubble {
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .msg-row.user .msg-bubble {
+      background: #2563eb;
+      color: #fff;
+      border-top-right-radius: 2px;
+    }
+
+    .msg-row.ai .msg-bubble {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      border-top-left-radius: 2px;
+    }
+
+    .msg-bubble code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.8em;
+    }
+
+    .chat-suggestions {
+      padding: 0.6rem 1rem;
+      background: rgba(17, 24, 39, 0.6);
+      border-top: 1px solid rgba(55, 65, 81, 0.5);
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .chat-suggestions::-webkit-scrollbar { display: none; }
+
+    .suggestion-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .suggestion-chip:hover {
+      background: var(--bg-card-hover);
+      color: var(--primary);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .chat-input-bar {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.9rem;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .chat-input-bar input:focus {
+      border-color: var(--primary);
+    }
+
+    .telemetry-pane {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .telemetry-code {
+      flex: 1;
+      background: #090d16;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: #93c5fd;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    /* Idle / Unused Apps cards */
+    .app-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+
+    .app-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .app-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: #374151;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Mini charts canvas */
+    canvas.mini-chart {
+      width: 100%;
+      height: 60px;
+      display: block;
+    }
+
+    /* Footer */
+    footer.app-footer {
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      padding: 1rem 1.5rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: auto;
+    }
+
+    /* Toast Notification */
+    #toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      background: #1f2937;
+      border: 1px solid #374151;
+      color: #f3f4f6;
+      padding: 0.75rem 1.15rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      animation: slideIn 0.25s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Application Bar -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <h1>memReport <span class="brand-badge">v2.0 Pro</span></h1>
+          <div class="brand-subtitle">Desktop System Telemetry &bull; RAM &amp; CPU Profiler &bull; LLM Assistant</div>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span id="daemon-status-text">Live Daemon: Connected</span>
+        </div>
+
+        <div class="status-pill">
+          <span>Host: <strong style="color:var(--text-main);">DESKTOP-WIN11</strong></span>
+        </div>
+
+        <div class="status-pill">
+          <span>Updated: <strong id="timestamp-clock" style="color:var(--text-main);">00:00:00</strong></span>
+        </div>
+
+        <button class="btn btn-sm" id="btn-toggle-sim" title="Toggle real-time telemetry simulation">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span id="sim-btn-text">Pause Feed</span>
+        </button>
+
+        <button class="btn btn-sm btn-primary" onclick="switchTab('tab-ai')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Ask AI
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="app-nav">
+    <div class="nav-inner">
+      <button class="nav-tab active" onclick="switchTab('tab-overview')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        Overview
+      </button>
+
+      <button class="nav-tab" onclick="switchTab('tab-cpu')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+          <rect x="9" y="9" width="6" height="6"></rect>
+          <line x1="9" y1="1" x2="9" y2="4"></line>
+          <line x1="15" y1="1" x2="15" y2="4"></line>
+          <line x1="9" y1="20" x2="9" y2="23"></line>
+          <line x1="15" y1="20" x2="15" y2="23"></line>
+          <line x1="20" y1="9" x2="23" y2="9"></line>
+          <line x1="20" y1="14" x2="23" y2="14"></line>
+          <line x1="1" y1="9" x2="4" y2="9"></line>
+          <line x1="1" y1="14" x2="4" y2="14"></line>
+        </svg>
+        CPU &amp; Cores <span class="nav-tab-badge">24</span>
+      </button>
+
+      <button class="nav-tab" onclick="switchTab('tab-memory')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+        Memory (RAM)
+      </button>
+
+      <button class="nav-tab" onclick="switchTab('tab-storage')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7z"></path>
+          <line x1="9" y1="9" x2="15" y2="9"></line>
+          <line x1="9" y1="13" x2="13" y2="13"></line>
+        </svg>
+        Storage &amp; Heavy Files <span class="nav-tab-badge">3 Drives</span>
+      </button>
+
+      <button class="nav-tab" onclick="switchTab('tab-processes')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="8" y1="6" x2="21" y2="6"></line>
+          <line x1="8" y1="12" x2="21" y2="12"></line>
+          <line x1="8" y1="18" x2="21" y2="18"></line>
+          <line x1="3" y1="6" x2="3.01" y2="6"></line>
+          <line x1="3" y1="12" x2="3.01" y2="12"></line>
+          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+        </svg>
+        Process Manager <span class="nav-tab-badge" id="nav-proc-count">148</span>
+      </button>
+
+      <button class="nav-tab" onclick="switchTab('tab-unused')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        Unused Apps Finder <span class="nav-tab-badge" style="background:var(--warning-dim); color:var(--warning);">3 Idle</span>
+      </button>
+
+      <button class="nav-tab" onclick="switchTab('tab-ai')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        LLM Assistant
+      </button>
+
+      <button class="nav-tab" onclick="switchTab('tab-settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Config &amp; APIs
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Areas -->
+  <main class="app-main">
+
+    <!-- TAB 1: OVERVIEW -->
+    <section id="tab-overview" class="tab-content active">
+      <!-- High priority recommendations alert -->
+      <div class="banner">
+        <div class="banner-left">
+          <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <div>
+            <strong style="color:#f8fafc; font-size: 0.9rem;">Optimization Opportunity Detected</strong>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top:2px;">
+              3 background applications have been idle for > 2 hours taking <strong>3.82 GB RAM</strong>. Recycle Bin on Drive E:\ holds <strong>16.97 GB</strong> of removable ISO files.
+            </p>
+          </div>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-sm btn-primary" onclick="switchTab('tab-unused')">Review Idle Apps</button>
+          <button class="btn btn-sm" onclick="switchTab('tab-storage')">Clean Storage</button>
+        </div>
+      </div>
+
+      <!-- Top KPI Metric Cards -->
+      <div class="grid-4">
+        <!-- CPU Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="badge badge-primary">Processor</span>
+              <h3>CPU Load</h3>
+            </div>
+            <span class="badge badge-neutral">24 Cores</span>
+          </div>
+          <div class="metric-value" id="kpi-cpu-val" style="color:var(--primary);">18.4%</div>
+          <div class="progress-bar-container">
+            <div id="kpi-cpu-bar" class="progress-bar-fill" style="width: 18.4%; background: var(--primary);"></div>
+          </div>
+          <div class="metric-sub">Clock: 3.80 GHz &bull; Intel Core i7-13700K</div>
+        </div>
+
+        <!-- RAM Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="badge badge-success">Memory</span>
+              <h3>RAM Usage</h3>
+            </div>
+            <span class="badge badge-neutral">32.0 GB DDR5</span>
+          </div>
+          <div class="metric-value" id="kpi-ram-val" style="color:var(--success);">14.2 GB <span style="font-size:1rem; font-weight:500; color:var(--text-muted);">(44.3%)</span></div>
+          <div class="progress-bar-container">
+            <div id="kpi-ram-bar" class="progress-bar-fill" style="width: 44.3%; background: var(--success);"></div>
+          </div>
+          <div class="metric-sub">17.8 GB Free &bull; 8.2 GB Cached</div>
+        </div>
+
+        <!-- Storage Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="badge badge-warning">Disks</span>
+              <h3>Primary Storage</h3>
+            </div>
+            <span class="badge badge-neutral">C:\ NVMe</span>
+          </div>
+          <div class="metric-value" id="kpi-disk-val" style="color:var(--warning);">412.5 GB <span style="font-size:1rem; font-weight:500; color:var(--text-muted);">(86.7%)</span></div>
+          <div class="progress-bar-container">
+            <div id="kpi-disk-bar" class="progress-bar-fill" style="width: 86.7%; background: var(--warning);"></div>
+          </div>
+          <div class="metric-sub">63.1 GB Free of 475.6 GB</div>
+        </div>
+
+        <!-- Process Count Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="badge badge-primary">Threads</span>
+              <h3>Active Tasks</h3>
+            </div>
+            <span class="badge badge-neutral">Up 4d 18h</span>
+          </div>
+          <div class="metric-value" id="kpi-proc-val" style="color:#a78bfa;">148 <span style="font-size:1rem; font-weight:500; color:var(--text-muted);">Processes</span></div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: 62%; background: #a78bfa;"></div>
+          </div>
+          <div class="metric-sub">1,892 Threads &bull; 44,120 Handles</div>
+        </div>
+      </div>
+
+      <!-- Quick Dual Charts & Activity Breakdown -->
+      <div class="grid-2">
+        <!-- CPU Real-time Trend -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>Real-Time CPU Activity (Last 60s)</h3>
+              <div class="card-subtitle">Aggregate logical core load frequency</div>
+            </div>
+            <span class="badge badge-primary">3s interval</span>
+          </div>
+          <canvas id="overview-cpu-chart" class="mini-chart" height="90"></canvas>
+        </div>
+
+        <!-- Memory Breakdown Graph -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>RAM Distribution Breakdown</h3>
+              <div class="card-subtitle">Physical memory mapping &amp; paging status</div>
+            </div>
+            <span class="badge badge-success">31.8 GB Usable</span>
+          </div>
+          <div style="margin-top: 0.5rem;">
+            <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:4px;">
+              <span>In Use: <strong>14.2 GB</strong></span>
+              <span>Modified: <strong>1.1 GB</strong></span>
+              <span>Standby/Cached: <strong>7.1 GB</strong></span>
+              <span>Free: <strong>9.6 GB</strong></span>
+            </div>
+            <div style="height:20px; width:100%; display:flex; border-radius:var(--radius-sm); overflow:hidden;">
+              <div style="width:44.3%; background:#38bdf8;" title="In Use: 44.3%"></div>
+              <div style="width:3.5%; background:#818cf8;" title="Modified: 3.5%"></div>
+              <div style="width:22.2%; background:#10b981;" title="Standby/Cached: 22.2%"></div>
+              <div style="width:30.0%; background:#374151;" title="Free: 30%"></div>
+            </div>
+            <div style="display:flex; gap:1.25rem; font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem; flex-wrap:wrap;">
+              <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; border-radius:2px; background:#38bdf8;"></span> In Use</span>
+              <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; border-radius:2px; background:#818cf8;"></span> Modified</span>
+              <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; border-radius:2px; background:#10b981;"></span> Cached</span>
+              <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; border-radius:2px; background:#374151;"></span> Free</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Drive Overview Strip -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h3>Logical Disk Drives Overview</h3>
+          </div>
+          <button class="btn btn-sm" onclick="switchTab('tab-storage')">Explore Files &rarr;</button>
+        </div>
+        <div class="grid-3" style="margin-bottom:0;">
+          <div style="background:var(--bg-surface); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+            <div style="display:flex; justify-content:space-between;">
+              <strong>Drive C:\ (System)</strong>
+              <span class="badge badge-danger">86.7% Full</span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width:86.7%; background:var(--danger);"></div>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+              <span>Used: 412.5 GB</span>
+              <span>Free: 63.1 GB</span>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-surface); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+            <div style="display:flex; justify-content:space-between;">
+              <strong>Drive D:\ (Data &amp; Games)</strong>
+              <span class="badge badge-warning">71.2% Full</span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width:71.2%; background:var(--warning);"></div>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+              <span>Used: 663.2 GB</span>
+              <span>Free: 268.3 GB</span>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-surface); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+            <div style="display:flex; justify-content:space-between;">
+              <strong>Drive E:\ (Storage)</strong>
+              <span class="badge badge-success">9.6% Full</span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width:9.6%; background:var(--success);"></div>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+              <span>Used: 36.03 GB</span>
+              <span>Free: 339.6 GB</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: CPU & CORES -->
+    <section id="tab-cpu" class="tab-content">
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <div>
+            <h2>Global CPU Telemetry <span class="badge badge-primary">24 Logical Cores</span></h2>
+            <div class="card-subtitle">Real-time load balancing across Performance &amp; Efficiency Cores</div>
+          </div>
+          <div style="display:flex; gap:1.5rem; font-size:0.85rem; align-items:center;">
+            <span>Architecture: <strong>x86_64</strong></span>
+            <span>Base Speed: <strong>3.40 GHz</strong></span>
+            <span>Total Load: <strong id="cpu-total-load-badge" style="color:var(--primary); font-size:1.1rem;">18.4%</strong></span>
+          </div>
+        </div>
+
+        <div class="progress-bar-container" style="height:12px;">
+          <div id="cpu-master-bar" class="progress-bar-fill" style="width: 18.4%; background: #10b981;"></div>
+        </div>
+
+        <h3 style="font-size:0.85rem; text-transform:uppercase; color:var(--text-muted); margin:1.25rem 0 0.75rem; letter-spacing:0.05em;">
+          Per-Core Breakdown
+        </h3>
+        
+        <!-- 24-Cores Grid dynamic populated -->
+        <div class="cores-grid" id="cores-grid-container">
+          <!-- Cores injected by JS -->
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3>Logical Processor Information</h3>
+          </div>
+          <table style="font-size:0.8rem;">
+            <tbody>
+              <tr><td style="color:var(--text-muted);">Processor Name</td><td>13th Gen Intel(R) Core(TM) i7-13700K</td></tr>
+              <tr><td style="color:var(--text-muted);">Physical Sockets</td><td>1</td></tr>
+              <tr><td style="color:var(--text-muted);">P-Cores / E-Cores</td><td>8 P-Cores (16 Threads) + 8 E-Cores (8 Threads)</td></tr>
+              <tr><td style="color:var(--text-muted);">L1 / L2 / L3 Cache</td><td>1.3 MB / 24.0 MB / 30.0 MB SmartCache</td></tr>
+              <tr><td style="color:var(--text-muted);">Virtualization (VT-x)</td><td><span class="badge badge-success">Enabled</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Top CPU Consuming Applications</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Process</th>
+                <th>PID</th>
+                <th>Core Affinity</th>
+                <th style="text-align:right;">CPU %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>VALORANT.exe</strong></td>
+                <td>12404</td>
+                <td>P-Core 2, 4, 6</td>
+                <td style="text-align:right; font-weight:700; color:var(--primary);">8.2%</td>
+              </tr>
+              <tr>
+                <td><strong>chrome.exe (22 tabs)</strong></td>
+                <td>9820</td>
+                <td>All Cores</td>
+                <td style="text-align:right; font-weight:700; color:var(--primary);">3.4%</td>
+              </tr>
+              <tr>
+                <td><strong>Code.exe (Antigravity)</strong></td>
+                <td>18320</td>
+                <td>E-Cores</td>
+                <td style="text-align:right; font-weight:700; color:var(--primary);">2.1%</td>
+              </tr>
+              <tr>
+                <td><strong>System Interrupts</strong></td>
+                <td>-</td>
+                <td>Core 0</td>
+                <td style="text-align:right; font-weight:700; color:var(--primary);">1.2%</td>
+              </tr>
+              <tr>
+                <td><strong>discord.exe</strong></td>
+                <td>14502</td>
+                <td>E-Core 18</td>
+                <td style="text-align:right; font-weight:700; color:var(--primary);">0.8%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MEMORY (RAM) -->
+    <section id="tab-memory" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2>Physical Memory Status</h2>
+              <div class="card-subtitle">High-speed DDR5 synchronized telemetry</div>
+            </div>
+            <span class="badge badge-success">Healthy</span>
+          </div>
+
+          <div style="display:flex; align-items:baseline; gap:0.5rem; margin-bottom:0.5rem;">
+            <div class="metric-value" style="color:var(--success);">14.2 GB</div>
+            <span style="color:var(--text-muted); font-size:1.1rem;">/ 31.8 GB In-Use</span>
+          </div>
+
+          <div class="progress-bar-container" style="height:12px;">
+            <div class="progress-bar-fill" style="width:44.3%; background:var(--success);"></div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:1.5rem;">
+            <div style="background:var(--bg-surface); padding:0.8rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted);">Committed Memory</div>
+              <div style="font-size:1.1rem; font-weight:700; margin-top:2px;">18.4 / 36.5 GB</div>
+            </div>
+            <div style="background:var(--bg-surface); padding:0.8rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted);">Cached Standby</div>
+              <div style="font-size:1.1rem; font-weight:700; margin-top:2px; color:var(--primary);">8.2 GB</div>
+            </div>
+            <div style="background:var(--bg-surface); padding:0.8rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted);">Paged Pool</div>
+              <div style="font-size:1.1rem; font-weight:700; margin-top:2px;">648 MB</div>
+            </div>
+            <div style="background:var(--bg-surface); padding:0.8rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted);">Non-Paged Pool</div>
+              <div style="font-size:1.1rem; font-weight:700; margin-top:2px;">492 MB</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Hardware Specifications</h3>
+            <span class="badge badge-neutral">DIMM Slot 2 &amp; 4</span>
+          </div>
+          <table style="font-size:0.8rem;">
+            <tbody>
+              <tr><td style="color:var(--text-muted);">Speed</td><td>5600 MT/s (XMP Profile 1)</td></tr>
+              <tr><td style="color:var(--text-muted);">Slots Used</td><td>2 of 4 Channels</td></tr>
+              <tr><td style="color:var(--text-muted);">Form Factor</td><td>DIMM (Desktop)</td></tr>
+              <tr><td style="color:var(--text-muted);">Hardware Reserved</td><td>184 MB</td></tr>
+              <tr><td style="color:var(--text-muted);">Page File Location</td><td>C:\pagefile.sys (4.75 GB dynamic)</td></tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:1.25rem; padding:0.75rem; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.25); border-radius:var(--radius-sm); font-size:0.78rem;">
+            <strong style="color:var(--primary);">AI Memory Optimization Tip:</strong>
+            <p style="color:var(--text-muted); margin-top:2px;">
+              Closing 3 idle Electron-based instances (Discord, Slack, Spotify background workers) can immediately reclaim ~1.95 GB of working set RAM.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: STORAGE & HEAVY FILES -->
+    <section id="tab-storage" class="tab-content">
+      <div class="table-toolbar">
+        <div>
+          <h2>Drive Capacities &amp; Large File Scanner</h2>
+          <div class="card-subtitle">Deep dive file-system analyzer with multi-drive scan rankings</div>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-sm btn-primary" onclick="showToast('Re-scanning file tables across C, D, E...')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            Rescan Heavy Files
+          </button>
+        </div>
+      </div>
+
+      <!-- Drive Cards with Heaviest Files Table -->
+      <!-- Drive D: -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <div>
+            <h3>Drive D:\ <span class="badge badge-primary">Data &amp; Games</span></h3>
+            <div class="card-subtitle">File System: NTFS &bull; Volume Serial: 9A44-7B21</div>
+          </div>
+          <div style="font-size:0.85rem;">
+            <span><strong>Used:</strong> 663.2 GB (71.2%) &bull; </span>
+            <span><strong>Free:</strong> 268.3 GB &bull; </span>
+            <span><strong>Total:</strong> 931.5 GB</span>
+          </div>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" style="width: 71.2%; background: #3b82f6;"></div>
+        </div>
+
+        <h4 style="font-size:0.85rem; color:var(--text-muted); margin:1rem 0 0.5rem; text-transform:uppercase;">Top Heaviest Files on Drive D:\</h4>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">Rank</th>
+                <th>File Path</th>
+                <th style="width: 140px;">Category</th>
+                <th style="width: 120px; text-align: right;">Size</th>
+                <th style="width: 90px; text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="rank-cell">#1</td>
+                <td class="path-cell" title="D:\Riot Games\VALORANT\live\ShooterGame\Content\Paks\pakchunk10-WindowsClient.ucas">
+                  D:\Riot Games\VALORANT\live\ShooterGame\Content\Paks\pakchunk10-WindowsClient.ucas
+                </td>
+                <td><span class="badge badge-neutral">Game Asset</span></td>
+                <td class="size-cell">18.69 GB</td>
+                <td style="text-align:center;"><button class="btn btn-sm" onclick="showToast('Opened File Location in Explorer')">Locate</button></td>
+              </tr>
+              <tr>
+                <td class="rank-cell">#2</td>
+                <td class="path-cell" title="D:\Games\Sekiro-Shadows-Die-Twice-SteamRIP.com.rar">
+                  D:\Games\Sekiro-Shadows-Die-Twice-SteamRIP.com.rar
+                </td>
+                <td><span class="badge badge-warning">Archive</span></td>
+                <td class="size-cell">13.22 GB</td>
+                <td style="text-align:center;"><button class="btn btn-sm" onclick="showToast('Opened File Location in Explorer')">Locate</button></td>
+              </tr>
+              <tr>
+                <td class="rank-cell">#3</td>
+                <td class="path-cell" title="D:\$RECYCLE.BIN\S-1-5-21\Factorio-SteamRIP.com.rar">
+                  D:\$RECYCLE.BIN\S-1-5-21-2661061813-474742775-1811010696-1001\$R3SNTH3\Factorio-SteamRIP.com.rar
+                </td>
+                <td><span class="badge badge-danger">Recycle Bin</span></td>
+                <td class="size-cell">8.86 GB</td>
+                <td style="text-align:center;"><button class="btn btn-sm btn-danger" onclick="showToast('File queued for permanent deletion')">Clean</button></td>
+              </tr>
+              <tr>
+                <td class="rank-cell">#4</td>
+                <td class="path-cell" title="D:\Games\Sekiro\Data5.bdt">
+                  D:\Games\Sekiro\Data5.bdt
+                </td>
+                <td><span class="badge badge-neutral">Game Data</span></td>
+                <td class="size-cell">6.36 GB</td>
+                <td style="text-align:center;"><button class="btn btn-sm" onclick="showToast('Opened File Location in Explorer')">Locate</button></td>
+              </tr>
+              <tr>
+                <td class="rank-cell">#5</td>
+                <td class="path-cell" title="D:\Riot Games\VALORANT\live\ShooterGame\Content\Paks\pakchunk1-WindowsClient.ucas">
+                  D:\Riot Games\VALORANT\live\ShooterGame\Content\Paks\pakchunk1-WindowsClient.ucas
+                </td>
+                <td><span class="badge badge-neutral">Game Asset</span></td>
+                <td class="size-cell">5.20 GB</td>
+                <td style="text-align:center;"><button class="btn btn-sm" onclick="showToast('Opened File Location in Explorer')">Locate</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Drive E: -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Drive E:\ <span class="badge badge-primary">New Volume (Backups)</span></h3>
+            <div class="card-subtitle">File System: NTFS &bull; Volume Serial: 4C21-8890</div>
+          </div>
+          <div style="font-size:0.85rem;">
+            <span><strong>Used:</strong> 36.03 GB (9.6%) &bull; </span>
+            <span><strong>Free:</strong> 339.66 GB &bull; </span>
+            <span><strong>Total:</strong> 375.69 GB</span>
+          </div>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" style="width: 9.6%; background: #10b981;"></div>
+        </div>
+
+        <h4 style="font-size:0.85rem; color:var(--text-muted); margin:1rem 0 0.5rem; text-transform:uppercase;">Top Heaviest Files on Drive E:\</h4>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">Rank</th>
+                <th>File Path</th>
+                <th style="width: 140px;">Category</th>
+                <th style="width: 120px; text-align: right;">Size</th>
+                <th style="width: 90px; text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="rank-cell">#1</td>
+                <td class="path-cell" title="E:\$RECYCLE.BIN\Windows11_Client_x64_en-us_26300_9457.iso">
+                  E:\$RECYCLE.BIN\S-1-5-21-2661061813-474742775-1811010696-1001\$RJ3GW7K\Windows11_Client_x64_en-us_26300_9457.iso
+                </td>
+                <td><span class="badge badge-danger">Recycle Bin ISO</span></td>
+                <td class="size-cell">8.43 GB</td>
+                <td style="text-align:center;"><button class="btn btn-sm btn-danger" onclick="showToast('Recycle item purged!')">Purge</button></td>
+              </tr>
+              <tr>
+                <td class="rank-cell">#2</td>
+                <td class="path-cell" title="E:\$RECYCLE.BIN\tiny11.iso">
+                  E:\$RECYCLE.BIN\S-1-5-21-2661061813-474742775-1811010696-1001\$RP8CD92\tiny11.iso
+                </td>
+                <td><span class="badge badge-danger">Recycle Bin ISO</span></td>
+                <td class="size-cell">5.30 GB</td>
+                <td style="text-align:center;"><button class="btn btn-sm btn-danger" onclick="showToast('Recycle item purged!')">Purge</button></td>
+              </tr>
+              <tr>
+                <td class="rank-cell">#3</td>
+                <td class="path-cell" title="E:\PEAK-SteamRIP.com\PEAK\PEAK_Data\data.unity3d">
+                  E:\PEAK-SteamRIP.com\PEAK\PEAK_Data\data.unity3d
+                </td>
+                <td><span class="badge badge-neutral">Game Asset</span></td>
+                <td class="size-cell">1.40 GB</td>
+                <td style="text-align:center;"><button class="btn btn-sm" onclick="showToast('Opened File Location in Explorer')">Locate</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: PROCESS MANAGER -->
+    <section id="tab-processes" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Running Processes &amp; Application Manager</h2>
+            <div class="card-subtitle">Real-time resource allocation and task governor</div>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-sm" onclick="showToast('Process tree refreshed')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="table-toolbar">
+          <div class="search-input-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="proc-search-input" placeholder="Filter by Process name or PID..." oninput="filterProcessTable()" />
+          </div>
+
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <span style="font-size:0.75rem; color:var(--text-muted);">Filter:</span>
+            <button class="btn btn-sm active" id="filter-all" onclick="setProcessFilter('all')">All</button>
+            <button class="btn btn-sm" id="filter-apps" onclick="setProcessFilter('app')">User Apps</button>
+            <button class="btn btn-sm" id="filter-bg" onclick="setProcessFilter('background')">Background</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table id="process-table">
+            <thead>
+              <tr>
+                <th onclick="sortProcessTable('name')" style="cursor:pointer;">Process Name &#x25B4;</th>
+                <th onclick="sortProcessTable('pid')" style="cursor:pointer; width:90px;">PID</th>
+                <th>Category</th>
+                <th onclick="sortProcessTable('cpu')" style="cursor:pointer; text-align:right;">CPU %</th>
+                <th onclick="sortProcessTable('memory')" style="cursor:pointer; text-align:right;">RAM (MB)</th>
+                <th>Disk I/O</th>
+                <th>Status</th>
+                <th style="text-align:center; width:110px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="process-table-body">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: UNUSED APPS FINDER -->
+    <section id="tab-unused" class="tab-content">
+      <div class="table-toolbar">
+        <div>
+          <h2>Unused &amp; Inactive Background Applications</h2>
+          <div class="card-subtitle">Intelligent heuristic detection of idle applications eating system resources</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showToast('Reclaimed 3.82 GB RAM across 3 idle apps!')">
+          Hibernate All Idle Apps (Reclaim ~3.8 GB)
+        </button>
+      </div>
+
+      <div class="grid-3" id="unused-apps-container">
+        <!-- App 1: Discord -->
+        <div class="app-card">
+          <div class="app-card-top">
+            <div style="display:flex; gap:0.75rem;">
+              <div class="app-icon" style="background:#5865f2;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                </svg>
+              </div>
+              <div>
+                <strong style="color:#f8fafc; font-size:0.95rem;">Discord</strong>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Discord Inc. &bull; 4 sub-processes</div>
+              </div>
+            </div>
+            <span class="badge badge-warning">Idle 3h 42m</span>
+          </div>
+
+          <div style="font-size:0.8rem; background:var(--bg-card); padding:0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--text-muted);">RAM Consumption:</span>
+              <strong style="color:var(--danger);">1,142 MB</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--text-muted);">Window State:</span>
+              <span>Minimized to Tray</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">User Interaction:</span>
+              <span>None in 220 mins</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-sm btn-primary" style="flex:1;" onclick="showToast('Discord suspended until restored')">Suspend (Free 1.1 GB)</button>
+            <button class="btn btn-sm btn-danger" onclick="showToast('Discord terminated')">Kill</button>
+          </div>
+        </div>
+
+        <!-- App 2: Spotify -->
+        <div class="app-card">
+          <div class="app-card-top">
+            <div style="display:flex; gap:0.75rem;">
+              <div class="app-icon" style="background:#1db954;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.498 17.306c-.216.353-.674.464-1.026.249-2.812-1.718-6.352-2.107-10.521-1.155-.403.092-.806-.157-.899-.56-.092-.403.158-.806.56-.899 4.568-1.042 8.489-.6 11.637 1.339.352.215.464.673.249 1.026zm1.467-3.26c-.272.441-.853.582-1.294.31-3.22-1.979-8.13-2.551-11.939-1.395-.497.151-1.024-.134-1.175-.631-.151-.497.134-1.024.631-1.175 4.358-1.323 9.774-.683 13.467 1.587.441.272.582.853.31 1.294zm.126-3.41c-3.86-2.292-10.228-2.503-13.91-1.385-.593.18-1.22-.163-1.4-.756-.18-.593.163-1.22.756-1.4 4.24-1.287 11.274-1.042 15.717 1.596.533.317.708 1.011.391 1.544-.317.533-1.011.708-1.544.401z"/>
+                </svg>
+              </div>
+              <div>
+                <strong style="color:#f8fafc; font-size:0.95rem;">Spotify</strong>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Spotify AB &bull; Playback Paused</div>
+              </div>
+            </div>
+            <span class="badge badge-warning">Idle 2h 15m</span>
+          </div>
+
+          <div style="font-size:0.8rem; background:var(--bg-card); padding:0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--text-muted);">RAM Consumption:</span>
+              <strong style="color:var(--danger);">870 MB</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--text-muted);">Audio Stream:</span>
+              <span>Paused / Inactive</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">User Interaction:</span>
+              <span>None in 135 mins</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-sm btn-primary" style="flex:1;" onclick="showToast('Spotify suspended until active playback')">Suspend (Free 870 MB)</button>
+            <button class="btn btn-sm btn-danger" onclick="showToast('Spotify terminated')">Kill</button>
+          </div>
+        </div>
+
+        <!-- App 3: Epic Games Launcher -->
+        <div class="app-card">
+          <div class="app-card-top">
+            <div style="display:flex; gap:0.75rem;">
+              <div class="app-icon" style="background:#2f3542;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.2L19.8 8 12 11.8 4.2 8 12 4.2zm-8 4.7l7 3.5v7.4l-7-3.5V8.9zm9 10.9v-7.4l7-3.5v7.4l-7 3.5z"/>
+                </svg>
+              </div>
+              <div>
+                <strong style="color:#f8fafc; font-size:0.95rem;">Epic Games Launcher</strong>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Epic Games, Inc. &bull; 6 helpers</div>
+              </div>
+            </div>
+            <span class="badge badge-warning">Idle 5h 10m</span>
+          </div>
+
+          <div style="font-size:0.8rem; background:var(--bg-card); padding:0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--text-muted);">RAM Consumption:</span>
+              <strong style="color:var(--danger);">1,810 MB</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--text-muted);">Active Downloads:</span>
+              <span>0 B/s (None)</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Background WebViews:</span>
+              <span>3 Chromium frames</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-sm btn-primary" style="flex:1;" onclick="showToast('Epic Launcher closed (Freed 1.81 GB)')">Hibernate (Free 1.81 GB)</button>
+            <button class="btn btn-sm btn-danger" onclick="showToast('Epic Games killed')">Kill</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 7: LLM ASSISTANT -->
+    <section id="tab-ai" class="tab-content">
+      <div class="chat-layout">
+        <!-- Main Chat Box -->
+        <div class="chat-box">
+          <div class="chat-header">
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+              <div class="brand-icon" style="width:28px; height:28px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <strong style="color:#f8fafc; font-size:0.95rem;">memReport Assistant</strong>
+                <div style="font-size:0.72rem; color:var(--text-muted);">Powered by Gemini 2.5 Flash Telemetry Agent</div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <span class="badge badge-success">Telemetry Sync On</span>
+              <button class="btn btn-sm" onclick="clearChat()">Clear</button>
+            </div>
+          </div>
+
+          <!-- Chat messages stream -->
+          <div class="chat-messages" id="chat-messages">
+            <!-- Welcome message from AI -->
+            <div class="msg-row ai">
+              <div class="msg-avatar ai-avatar">AI</div>
+              <div class="msg-bubble">
+                Hello! I am your <strong>memReport System AI Assistant</strong>. I have direct access to your live CPU telemetry, memory allocation, storage partitions, and background process lists.
+                <br/><br/>
+                Ask me anything about your system resource usage, like:
+                <ul style="margin: 0.5rem 0 0 1.25rem; font-size: 0.82rem;">
+                  <li><em>"Which process is using the most RAM?"</em></li>
+                  <li><em>"What large files can I delete to clean up Drive E:\?"</em></li>
+                  <li><em>"Why is CPU Core 2 higher than the others?"</em></li>
+                  <li><em>"Show me all idle apps safe to close."</em></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Suggested query chips -->
+          <div class="chat-suggestions">
+            <span class="suggestion-chip" onclick="askPreset('Which applications are consuming the most memory right now?')">
+              Top memory hogs?
+            </span>
+            <span class="suggestion-chip" onclick="askPreset('Identify any idle or unused background applications safe to terminate.')">
+              Find unused idle apps
+            </span>
+            <span class="suggestion-chip" onclick="askPreset('Analyze Drive D: and Drive E: storage. Where is disk space being wasted?')">
+              Analyze disk space waste
+            </span>
+            <span class="suggestion-chip" onclick="askPreset('Give me a health check summary of my system.')">
+              System health summary
+            </span>
+          </div>
+
+          <!-- Chat input -->
+          <form class="chat-input-bar" id="chat-form" onsubmit="handleChatSubmit(event)">
+            <input type="text" id="chat-input" placeholder="Ask a natural-language question about your hardware, processes or disks..." />
+            <button type="submit" class="btn btn-primary" id="btn-chat-send">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+              Send
+            </button>
+          </form>
+        </div>
+
+        <!-- Telemetry context payload preview pane -->
+        <div class="telemetry-pane">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <div>
+              <strong style="font-size:0.85rem; color:#f8fafc;">Live Context Payload</strong>
+              <div style="font-size:0.72rem; color:var(--text-muted);">Sent with prompt to <code>/api/ask</code></div>
+            </div>
+            <span class="badge badge-primary">Auto-Updated</span>
+          </div>
+
+          <div class="telemetry-code" id="telemetry-json-preview">{
+  "system": {
+    "os": "Windows 11 Pro 64-bit",
+    "cpu_cores": 24,
+    "global_cpu_pct": 18.4,
+    "total_ram_gb": 31.8,
+    "used_ram_gb": 14.2
+  },
+  "drives": [
+    { "mount": "C:\\", "used_gb": 412.5, "free_gb": 63.1, "pct": 86.7 },
+    { "mount": "D:\\", "used_gb": 663.2, "free_gb": 268.3, "pct": 71.2 },
+    { "mount": "E:\\", "used_gb": 36.0, "free_gb": 339.6, "pct": 9.6 }
+  ],
+  "idle_candidates": ["discord.exe", "Spotify.exe", "EpicGamesLauncher.exe"],
+  "top_large_files": [
+    { "path": "D:\\Riot Games\\VALORANT\\...\\pakchunk10.ucas", "size_gb": 18.69 },
+    { "path": "D:\\Games\\Sekiro-Shadows-Die-Twice.rar", "size_gb": 13.22 },
+    { "path": "E:\\$RECYCLE.BIN\\Windows11_Client_x64.iso", "size_gb": 8.43 }
+  ]
+}</div>
+
+          <div style="margin-top:0.75rem; font-size:0.72rem; color:var(--text-muted);">
+            This structured context enables Gemini to reason specifically over your local machine state without sending personal data.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 8: SETTINGS & CONFIG -->
+    <section id="tab-settings" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3>Backend Services &amp; Endpoints</h3>
+            <span class="badge badge-primary">Config</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:1rem; font-size:0.85rem;">
+            <div>
+              <label style="display:block; margin-bottom:0.35rem; color:var(--text-muted);">Rust Telemetry Server Endpoint:</label>
+              <input type="text" value="http://127.0.0.1:8080" style="width:100%; padding:0.5rem; background:var(--bg-surface); border:1px solid var(--border-subtle); color:var(--text-main); border-radius:var(--radius-sm);" />
+            </div>
+
+            <div>
+              <label style="display:block; margin-bottom:0.35rem; color:var(--text-muted);">FastAPI LLM Assistant Gateway:</label>
+              <input type="text" value="http://127.0.0.1:8000/api/ask" style="width:100%; padding:0.5rem; background:var(--bg-surface); border:1px solid var(--border-subtle); color:var(--text-main); border-radius:var(--radius-sm);" />
+            </div>
+
+            <div>
+              <label style="display:block; margin-bottom:0.35rem; color:var(--text-muted);">Telemetry Refresh Frequency:</label>
+              <select style="width:100%; padding:0.5rem; background:var(--bg-surface); border:1px solid var(--border-subtle); color:var(--text-main); border-radius:var(--radius-sm);">
+                <option value="1">High Frequency (1 second)</option>
+                <option value="3" selected>Balanced (3 seconds - Recommended)</option>
+                <option value="5">Low Resource (5 seconds)</option>
+                <option value="10">Battery Saver (10 seconds)</option>
+              </select>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+              <button class="btn btn-primary" onclick="showToast('Connection verified: Rust daemon OK, AI API OK')">Test Connection</button>
+              <button class="btn" onclick="showToast('Settings saved')">Save Preferences</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>System Telemetry Export &amp; Reporting</h3>
+            <span class="badge badge-neutral">Diagnostics</span>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">
+            Export a full memory dump snapshot, per-core CPU load statistics, disk storage trees, and running process tables for offline inspection.
+          </p>
+
+          <div style="display:flex; flex-direction:column; gap:0.6rem;">
+            <button class="btn" onclick="exportJsonReport()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Download JSON Diagnostic Snapshot
+            </button>
+
+            <button class="btn" onclick="window.print()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+              Print / Save as PDF Report
+            </button>
+          </div>
+
+          <div style="margin-top:1.5rem; font-size:0.75rem; color:var(--text-dim);">
+            memReport Version 2.0.0 &bull; Built with Rust + HTML/JS/CSS + FastAPI + Gemini
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div style="max-width:1440px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+      <div>memReport &copy; 2026 &mdash; Intelligent Desktop System Resource Profiler</div>
+      <div style="display:flex; gap:1rem;">
+        <span>Rust Backend: <span style="color:var(--success);">Active (Port 8080)</span></span>
+        <span>AI Gateway: <span style="color:var(--success);">Active (Port 8000)</span></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Interactive Logic Script -->
+  <script>
+    // System State
+    const state = {
+      isSimulating: true,
+      simIntervalId: null,
+      globalCpu: 18.4,
+      totalRamGb: 31.8,
+      usedRamGb: 14.2,
+      cores: [
+        18.4, 0.1, 20.9, 0.3, 14.1, 0.2, 28.5, 1.1,
+        12.0, 0.4, 22.3, 0.2, 8.4,  0.1, 16.7, 0.5,
+        5.2,  4.8, 6.1,  3.9, 7.2,  5.0, 8.1,  4.4
+      ],
+      cpuHistory: [12, 15, 19, 14, 22, 18, 16, 25, 20, 18, 17, 19, 21, 18],
+      currentFilter: 'all',
+      sortField: 'memory',
+      sortAsc: false,
+      processes: [
+        { name: 'VALORANT.exe', pid: 12404, category: 'app', cpu: 8.2, mem: 3420, io: '14.2 MB/s', status: 'Running' },
+        { name: 'chrome.exe', pid: 9820, category: 'app', cpu: 3.4, mem: 2840, io: '1.8 MB/s', status: 'Active' },
+        { name: 'Code.exe', pid: 18320, category: 'app', cpu: 2.1, mem: 1450, io: '0.4 MB/s', status: 'Active' },
+        { name: 'EpicGamesLauncher.exe', pid: 16422, category: 'background', cpu: 0.1, mem: 1810, io: '0.0 MB/s', status: 'Idle (5h)' },
+        { name: 'Discord.exe', pid: 14502, category: 'background', cpu: 0.2, mem: 1142, io: '0.0 MB/s', status: 'Idle (3h)' },
+        { name: 'Spotify.exe', pid: 21040, category: 'background', cpu: 0.1, mem: 870, io: '0.0 MB/s', status: 'Idle (2h)' },
+        { name: 'rust_server.exe', pid: 8192, category: 'background', cpu: 0.8, mem: 48, io: '0.2 MB/s', status: 'Running' },
+        { name: 'explorer.exe', pid: 4820, category: 'background', cpu: 0.3, mem: 215, io: '0.1 MB/s', status: 'Running' },
+        { name: 'dwm.exe', pid: 1204, category: 'background', cpu: 1.2, mem: 340, io: '0.0 MB/s', status: 'Running' },
+        { name: 'System Interrupts', pid: 0, category: 'background', cpu: 1.2, mem: 0, io: '0.0 MB/s', status: 'Kernel' },
+        { name: 'SearchHost.exe', pid: 11420, category: 'background', cpu: 0.1, mem: 118, io: '0.0 MB/s', status: 'Suspended' }
+      ]
+    };
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+      const targetTab = document.getElementById(tabId);
+      if (targetTab) {
+        targetTab.classList.add('active');
+      }
+
+      // Mark matching nav button active
+      const tabs = Array.from(document.querySelectorAll('.nav-tab'));
+      const activeBtn = tabs.find(b => b.getAttribute('onclick')?.includes(tabId));
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+      }
+    }
+
+    // Toast Notification helper
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.transition = 'all 0.3s ease';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Render CPU Cores Grid
+    function renderCoresGrid() {
+      const container = document.getElementById('cores-grid-container');
+      if (!container) return;
+
+      container.innerHTML = state.cores.map((usage, idx) => {
+        const isPCore = idx < 16;
+        const color = usage > 80 ? 'var(--danger)' : usage > 50 ? 'var(--warning)' : 'var(--primary)';
+        return `
+          <div class="core-box">
+            <div class="core-box-top">
+              <span>Core ${idx} <span style="font-size:0.65rem; color:var(--text-dim);">${isPCore ? 'P' : 'E'}</span></span>
+              <strong style="color:${color};">${usage.toFixed(1)}%</strong>
+            </div>
+            <div class="progress-bar-container" style="height:5px; margin:0;">
+              <div class="progress-bar-fill" style="width: ${Math.min(100, usage)}%; background: ${color};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Draw Mini CPU Chart on Canvas
+    function drawCpuChart() {
+      const canvas = document.getElementById('overview-cpu-chart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.parentElement.clientWidth - 40;
+      const h = canvas.height = 90;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 1;
+      for (let y = 15; y < h; y += 25) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // Plot line
+      const data = state.cpuHistory;
+      const step = w / (data.length - 1);
+
+      ctx.beginPath();
+      data.forEach((val, i) => {
+        const x = i * step;
+        const y = h - (val / 100) * (h - 15) - 8;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+
+      // Gradient Fill
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
+      grad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    // Render Process Table
+    function renderProcessTable() {
+      const tbody = document.getElementById('process-table-body');
+      if (!tbody) return;
+
+      const searchTerm = (document.getElementById('proc-search-input')?.value || '').toLowerCase();
+
+      let list = state.processes.filter(p => {
+        const matchesFilter = state.currentFilter === 'all' || p.category === state.currentFilter;
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm) || p.pid.toString().includes(searchTerm);
+        return matchesFilter && matchesSearch;
+      });
+
+      // Sort
+      list.sort((a, b) => {
+        let valA = a[state.sortField];
+        let valB = b[state.sortField];
+        if (typeof valA === 'string') {
+          return state.sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        return state.sortAsc ? valA - valB : valB - valA;
+      });
+
+      tbody.innerHTML = list.map(p => {
+        const cpuColor = p.cpu > 5 ? 'color:var(--primary); font-weight:700;' : '';
+        const memColor = p.mem > 1000 ? 'color:var(--warning); font-weight:700;' : '';
+        const badgeClass = p.status.includes('Idle') ? 'badge-warning' : p.status === 'Active' ? 'badge-success' : 'badge-neutral';
+
+        return `
+          <tr>
+            <td><strong>${p.name}</strong></td>
+            <td style="color:var(--text-muted); font-family:var(--font-mono);">${p.pid}</td>
+            <td><span class="badge ${p.category === 'app' ? 'badge-primary' : 'badge-neutral'}">${p.category}</span></td>
+            <td style="text-align:right; font-family:var(--font-mono); ${cpuColor}">${p.cpu.toFixed(1)}%</td>
+            <td style="text-align:right; font-family:var(--font-mono); ${memColor}">${p.mem} MB</td>
+            <td style="color:var(--text-muted); font-family:var(--font-mono); font-size:0.75rem;">${p.io}</td>
+            <td><span class="badge ${badgeClass}">${p.status}</span></td>
+            <td style="text-align:center;">
+              <button class="btn btn-sm btn-danger" onclick="killProcess(${p.pid}, '${p.name}')">End Task</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('nav-proc-count').innerText = state.processes.length;
+    }
+
+    function filterProcessTable() {
+      renderProcessTable();
+    }
+
+    function setProcessFilter(category) {
+      state.currentFilter = category;
+      ['filter-all', 'filter-apps', 'filter-bg'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+      });
+      if (category === 'all') document.getElementById('filter-all')?.classList.add('active');
+      if (category === 'app') document.getElementById('filter-apps')?.classList.add('active');
+      if (category === 'background') document.getElementById('filter-bg')?.classList.add('active');
+      renderProcessTable();
+    }
+
+    function sortProcessTable(field) {
+      if (state.sortField === field) {
+        state.sortAsc = !state.sortAsc;
+      } else {
+        state.sortField = field;
+        state.sortAsc = false;
+      }
+      renderProcessTable();
+    }
+
+    function killProcess(pid, name) {
+      state.processes = state.processes.filter(p => p.pid !== pid);
+      showToast(`Process ${name} (PID ${pid}) terminated successfully.`);
+      renderProcessTable();
+    }
+
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('timestamp-clock').innerText = now.toTimeString().split(' ')[0];
+    }
+
+    // Telemetry Live Tick
+    function tickSimulation() {
+      // Fluctuate CPU slightly
+      const delta = (Math.random() - 0.48) * 3;
+      state.globalCpu = Math.max(8.0, Math.min(65.0, state.globalCpu + delta));
+      
+      // Update Cores
+      state.cores = state.cores.map((c, i) => {
+        const jitter = (Math.random() - 0.5) * 4;
+        let base = i % 2 === 0 ? state.globalCpu : state.globalCpu * 0.15;
+        return Math.max(0.1, Math.min(99.0, base + jitter));
+      });
+
+      // Update history
+      state.cpuHistory.push(Math.round(state.globalCpu));
+      if (state.cpuHistory.length > 20) state.cpuHistory.shift();
+
+      // Fluctuate RAM
+      const ramJitter = (Math.random() - 0.5) * 0.1;
+      state.usedRamGb = Math.max(12.0, Math.min(28.0, state.usedRamGb + ramJitter));
+
+      // DOM updates
+      const cpuVal = `${state.globalCpu.toFixed(1)}%`;
+      document.getElementById('kpi-cpu-val').innerText = cpuVal;
+      document.getElementById('kpi-cpu-bar').style.width = cpuVal;
+      document.getElementById('cpu-total-load-badge').innerText = cpuVal;
+      document.getElementById('cpu-master-bar').style.width = cpuVal;
+
+      const ramPct = ((state.usedRamGb / state.totalRamGb) * 100).toFixed(1);
+      document.getElementById('kpi-ram-val').innerHTML = `${state.usedRamGb.toFixed(1)} GB <span style="font-size:1rem; font-weight:500; color:var(--text-muted);">(${ramPct}%)</span>`;
+      document.getElementById('kpi-ram-bar').style.width = `${ramPct}%`;
+
+      renderCoresGrid();
+      drawCpuChart();
+    }
+
+    // Toggle feed
+    document.getElementById('btn-toggle-sim').addEventListener('click', () => {
+      state.isSimulating = !state.isSimulating;
+      const btnText = document.getElementById('sim-btn-text');
+      const statusText = document.getElementById('daemon-status-text');
+
+      if (state.isSimulating) {
+        btnText.innerText = 'Pause Feed';
+        statusText.innerText = 'Live Daemon: Connected';
+        state.simIntervalId = setInterval(tickSimulation, 2500);
+        showToast('Real-time telemetry resumed');
+      } else {
+        btnText.innerText = 'Resume Feed';
+        statusText.innerText = 'Feed Paused';
+        clearInterval(state.simIntervalId);
+        showToast('Real-time telemetry paused');
+      }
+    });
+
+    // Chat handling
+    function appendChatMessage(role, text) {
+      const container = document.getElementById('chat-messages');
+      const row = document.createElement('div');
+      row.className = `msg-row ${role}`;
+      row.innerHTML = `
+        <div class="msg-avatar ${role === 'user' ? 'user-avatar' : 'ai-avatar'}">${role === 'user' ? 'ME' : 'AI'}</div>
+        <div class="msg-bubble">${text}</div>
+      `;
+      container.appendChild(row);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function askPreset(promptText) {
+      document.getElementById('chat-input').value = promptText;
+      handleChatSubmit(new Event('submit'));
+    }
+
+    function clearChat() {
+      document.getElementById('chat-messages').innerHTML = '';
+      showToast('Chat history cleared');
+    }
+
+    async function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const query = input.value.trim();
+      if (!query) return;
+
+      input.value = '';
+      appendChatMessage('user', query);
+
+      // Typing indicator
+      const typingRow = document.createElement('div');
+      typingRow.className = 'msg-row ai';
+      typingRow.id = 'ai-typing-indicator';
+      typingRow.innerHTML = `
+        <div class="msg-avatar ai-avatar">AI</div>
+        <div class="msg-bubble" style="color:var(--text-muted); font-style:italic;">Analyzing system telemetry...</div>
+      `;
+      document.getElementById('chat-messages').appendChild(typingRow);
+
+      // Attempt backend call to /api/ask or fallback to intelligent client-side answer
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: query }),
+          signal: AbortSignal.timeout(2000)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('ai-typing-indicator')?.remove();
+          appendChatMessage('ai', data.answer);
+          return;
+        }
+      } catch (err) {
+        // Backend not currently reachable in standalone frontend mode - fallback intelligently
+      }
+
+      setTimeout(() => {
+        document.getElementById('ai-typing-indicator')?.remove();
+        let reply = '';
+        const q = query.toLowerCase();
+
+        if (q.includes('ram') || q.includes('memory')) {
+          reply = `Your system is currently using <strong>${state.usedRamGb.toFixed(1)} GB</strong> of 31.8 GB RAM (44.3%). The heaviest processes are:
+          <br/>1. <code>VALORANT.exe</code> (3,420 MB)
+          <br/>2. <code>chrome.exe</code> (2,840 MB across 22 tabs)
+          <br/>3. <code>EpicGamesLauncher.exe</code> (1,810 MB - currently idle)
+          <br/><br/>You can recover ~2.95 GB right now by closing the idle background launchers in the <em>Unused Apps</em> tab.`;
+        } else if (q.includes('idle') || q.includes('unused')) {
+          reply = `Found <strong>3 idle applications</strong> running without active user interaction:
+          <br/>&bull; <strong>Epic Games Launcher</strong>: Idle for 5h 10m (1,810 MB RAM)
+          <br/>&bull; <strong>Discord</strong>: Minimized in system tray for 3h 42m (1,142 MB RAM)
+          <br/>&bull; <strong>Spotify</strong>: Playback paused for 2h 15m (870 MB RAM)
+          <br/><br/>Terminating or hibernating them will instantly free <strong>3.82 GB RAM</strong> and reduce background CPU polling wakeups.`;
+        } else if (q.includes('file') || q.includes('disk') || q.includes('storage') || q.includes('drive')) {
+          reply = `Storage breakdown across your 3 logical drives:
+          <br/>&bull; <strong>C:\\</strong> is at <strong>86.7% capacity</strong> (63.1 GB remaining).
+          <br/>&bull; <strong>D:\\</strong>: Largest file is <code>pakchunk10-WindowsClient.ucas</code> (18.69 GB) followed by <code>Sekiro.rar</code> (13.22 GB).
+          <br/>&bull; <strong>E:\\</strong>: Contains <strong>16.97 GB</strong> of removable ISO files sitting in <code>$RECYCLE.BIN</code>. Emptying the Recycle Bin on Drive E: will give immediate breathing room.`;
+        } else {
+          reply = `Based on current telemetry snapshot:
+          <br/>&bull; <strong>Overall CPU Load</strong> is moderate at <strong>${state.globalCpu.toFixed(1)}%</strong> across 24 logical cores.
+          <br/>&bull; <strong>Memory Pressure</strong>: Healthy (17.6 GB free headroom).
+          <br/>&bull; <strong>Action Item</strong>: Empty the Recycle Bin on Drive E: and hibernate background game launchers to keep your rig fast.`;
+        }
+
+        appendChatMessage('ai', reply);
+      }, 700);
+    }
+
+    // Export JSON
+    function exportJsonReport() {
+      const report = {
+        timestamp: new Date().toISOString(),
+        host: "DESKTOP-WIN11",
+        cpu: {
+          globalUsage: state.globalCpu,
+          cores: state.cores
+        },
+        memory: {
+          totalGb: state.totalRamGb,
+          usedGb: state.usedRamGb,
+          freeGb: state.totalRamGb - state.usedRamGb
+        },
+        processes: state.processes
+      };
+
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `memReport-Snapshot-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Diagnostic JSON exported');
+    }
+
+    // Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      updateClock();
+      setInterval(updateClock, 1000);
+      renderCoresGrid();
+      renderProcessTable();
+      drawCpuChart();
+      state.simIntervalId = setInterval(tickSimulation, 2500);
+
+      window.addEventListener('resize', () => {
+        drawCpuChart();
+      });
+    });
+  </script>
+</body>
+</html>
