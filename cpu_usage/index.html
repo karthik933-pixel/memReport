@@ -22,17 +22,12 @@
       --text-muted: #8da4c4;
       --text-dim: #5c7599;
       
-      /* White-Blue (Ice / Cyan / Electric Sky) */
+      /* White-Blue (Ice / Electric Sky) */
       --ice-primary: #38bdf8;
       --ice-bright: #7dd3fc;
       --ice-light: #e0f2fe;
       --ice-dim: rgba(56, 189, 248, 0.15);
       --ice-glow: rgba(56, 189, 248, 0.35);
-
-      /* State indicators */
-      --status-active: #38bdf8;
-      --status-warning: #93c5fd;
-      --status-alert: #60a5fa;
 
       --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -80,7 +75,7 @@
       min-height: 100vh;
     }
 
-    /* Left Sidebar Navigation: Dark Blue & Black */
+    /* Left Sidebar Navigation */
     aside.sidebar {
       width: 250px;
       background: var(--bg-surface);
@@ -289,7 +284,7 @@
       gap: 0.85rem;
     }
 
-    /* Buttons: Crisp White, Dark Blue, Ice Blue */
+    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -357,7 +352,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Spacious Card: Dark Blue Surface with Subtle Ice Blue Border */
+    /* Spacious Card */
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -381,7 +376,7 @@
       color: var(--text-white);
     }
 
-    /* Grids with generous gaps */
+    /* Grids */
     .grid-4 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -403,7 +398,7 @@
       margin-bottom: 2rem;
     }
 
-    /* Clean Metric Box */
+    /* Metric Box */
     .metric-box {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -443,7 +438,7 @@
       color: var(--text-dim);
     }
 
-    /* Progress bar: Glowing Ice-Blue */
+    /* Progress bar */
     .progress-track {
       width: 100%;
       height: 8px;
@@ -586,6 +581,116 @@
 
     .search-box input::placeholder {
       color: var(--text-dim);
+    }
+
+    /* STORAGE SUB-TABS: C, D, E DIRECTORIES */
+    .drive-tab-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 860px) {
+      .drive-tab-bar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .drive-tab-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 1.75rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .drive-tab-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .drive-tab-btn.active {
+      background: linear-gradient(145deg, #0e1e44, #122452);
+      border-color: var(--ice-primary);
+      box-shadow: 0 6px 24px rgba(3, 7, 18, 0.5), 0 0 16px rgba(56, 189, 248, 0.2);
+    }
+
+    .drive-tab-btn.active::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      box-shadow: 0 0 12px var(--ice-primary);
+    }
+
+    .drive-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .drive-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-white);
+      letter-spacing: -0.01em;
+    }
+
+    .drive-meta-text {
+      font-size: 0.82rem;
+      color: var(--text-ice);
+    }
+
+    .drive-pane {
+      display: none;
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .drive-pane.active {
+      display: block;
+    }
+
+    /* Suggestions card */
+    .suggestion-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.25rem;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .suggestion-item:hover {
+      border-color: rgba(56, 189, 248, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .suggestion-info strong {
+      color: var(--text-white);
+      font-size: 0.95rem;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .suggestion-info p {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      margin: 0;
     }
 
     /* LIGHTWEIGHT & SPACIOUS AI ASSISTANT */
@@ -860,7 +965,7 @@
             </svg>
             <span>Storage</span>
           </div>
-          <span class="nav-badge">3</span>
+          <span class="nav-badge">C &bull; D &bull; E</span>
         </button>
 
         <div class="nav-label-group" style="margin-top:1rem;">Apps &amp; AI</div>
@@ -1002,18 +1107,21 @@
 
         <!-- Storage Row -->
         <div class="grid-3">
-          <div class="card" style="margin-bottom:0;">
+          <div class="card" style="margin-bottom:0; cursor:pointer;" onclick="switchTab('tab-storage'); switchDriveTab('drive-c');">
             <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
-              <strong style="color:var(--text-white);">C:\ System</strong>
+              <strong style="color:var(--text-white);">C:\ System (Windows)</strong>
               <span style="color:var(--ice-bright); font-size:0.85rem; font-weight:600;">86%</span>
             </div>
             <div class="progress-track">
               <div class="progress-fill" style="width:86%;"></div>
             </div>
-            <div style="font-size:0.82rem; color:var(--text-dim); margin-top:0.5rem;">412 GB / 475 GB</div>
+            <div style="font-size:0.82rem; color:var(--text-dim); margin-top:0.5rem; display:flex; justify-content:space-between;">
+              <span>412 GB / 475 GB</span>
+              <span style="color:var(--ice-primary);">Inspect &rarr;</span>
+            </div>
           </div>
 
-          <div class="card" style="margin-bottom:0;">
+          <div class="card" style="margin-bottom:0; cursor:pointer;" onclick="switchTab('tab-storage'); switchDriveTab('drive-d');">
             <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
               <strong style="color:var(--text-white);">D:\ Data &amp; Games</strong>
               <span style="color:var(--ice-bright); font-size:0.85rem; font-weight:600;">71%</span>
@@ -1021,10 +1129,13 @@
             <div class="progress-track">
               <div class="progress-fill" style="width:71%;"></div>
             </div>
-            <div style="font-size:0.82rem; color:var(--text-dim); margin-top:0.5rem;">663 GB / 931 GB</div>
+            <div style="font-size:0.82rem; color:var(--text-dim); margin-top:0.5rem; display:flex; justify-content:space-between;">
+              <span>663 GB / 931 GB</span>
+              <span style="color:var(--ice-primary);">Inspect &rarr;</span>
+            </div>
           </div>
 
-          <div class="card" style="margin-bottom:0;">
+          <div class="card" style="margin-bottom:0; cursor:pointer;" onclick="switchTab('tab-storage'); switchDriveTab('drive-e');">
             <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
               <strong style="color:var(--text-white);">E:\ Backups</strong>
               <span style="color:var(--ice-bright); font-size:0.85rem; font-weight:600;">10%</span>
@@ -1032,7 +1143,10 @@
             <div class="progress-track">
               <div class="progress-fill" style="width:10%;"></div>
             </div>
-            <div style="font-size:0.82rem; color:var(--text-dim); margin-top:0.5rem;">36 GB / 375 GB</div>
+            <div style="font-size:0.82rem; color:var(--text-dim); margin-top:0.5rem; display:flex; justify-content:space-between;">
+              <span>36 GB / 375 GB</span>
+              <span style="color:var(--ice-primary);">Inspect &rarr;</span>
+            </div>
           </div>
         </div>
       </section>
@@ -1105,53 +1219,355 @@
         </div>
       </section>
 
-      <!-- TAB 4: STORAGE & HEAVY FILES -->
+      <!-- TAB 4: STORAGE & MULTI-DRIVE DIRECTORIES (C, D, E) -->
       <section id="tab-storage" class="tab-content">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Largest Files Discovered</div>
-            <button class="btn btn-sm btn-outline" onclick="notify('Storage re-scanned')">Rescan</button>
+        
+        <!-- 3 SUB-TABS FOR C, D, E DIRECTORIES (Hover or click to switch) -->
+        <div class="drive-tab-bar">
+          <button class="drive-tab-btn active" id="btn-drive-c" onmouseenter="switchDriveTab('drive-c')" onclick="switchDriveTab('drive-c')">
+            <div class="drive-top-row">
+              <span class="drive-name">Drive C:\</span>
+              <span class="badge badge-primary">OS &bull; NVMe</span>
+            </div>
+            <div class="drive-meta-text">412.5 GB / 475.6 GB (86.7%)</div>
+            <div class="progress-track" style="margin-top:0.4rem; height:6px;">
+              <div class="progress-fill" style="width:86.7%;"></div>
+            </div>
+          </button>
+
+          <button class="drive-tab-btn" id="btn-drive-d" onmouseenter="switchDriveTab('drive-d')" onclick="switchDriveTab('drive-d')">
+            <div class="drive-top-row">
+              <span class="drive-name">Drive D:\</span>
+              <span class="badge badge-primary">Games &bull; Data</span>
+            </div>
+            <div class="drive-meta-text">663.2 GB / 931.5 GB (71.2%)</div>
+            <div class="progress-track" style="margin-top:0.4rem; height:6px;">
+              <div class="progress-fill" style="width:71.2%;"></div>
+            </div>
+          </button>
+
+          <button class="drive-tab-btn" id="btn-drive-e" onmouseenter="switchDriveTab('drive-e')" onclick="switchDriveTab('drive-e')">
+            <div class="drive-top-row">
+              <span class="drive-name">Drive E:\</span>
+              <span class="badge badge-primary">Storage &bull; Backups</span>
+            </div>
+            <div class="drive-meta-text">36.0 GB / 375.7 GB (9.6%)</div>
+            <div class="progress-track" style="margin-top:0.4rem; height:6px;">
+              <div class="progress-fill" style="width:9.6%;"></div>
+            </div>
+          </button>
+        </div>
+
+        <!-- DRIVE C:\ DIRECTORY VIEW -->
+        <div id="drive-c" class="drive-pane active">
+          <!-- Drive C Stats Row -->
+          <div class="grid-3">
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-size:0.8rem; color:var(--text-dim);">Available Space</div>
+              <div class="metric-number" style="font-size:1.9rem; margin-top:0.35rem; color:var(--text-white);">63.1 GB</div>
+              <div style="font-size:0.8rem; color:var(--text-ice); margin-top:0.25rem;">of 475.6 GB Total Capacity</div>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-size:0.8rem; color:var(--text-dim);">Filesystem &amp; Volume</div>
+              <div class="metric-number" style="font-size:1.9rem; margin-top:0.35rem; color:var(--text-white);">NTFS</div>
+              <div style="font-size:0.8rem; color:var(--text-ice); margin-top:0.25rem;">Volume Serial: 8F10-4A9B</div>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-size:0.8rem; color:var(--text-dim);">Potential Cleanup Savings</div>
+              <div class="metric-number" style="font-size:1.9rem; margin-top:0.35rem; color:var(--ice-bright);">~11.0 GB</div>
+              <div style="font-size:0.8rem; color:var(--text-ice); margin-top:0.25rem;">3 actionable recommendations</div>
+            </div>
           </div>
 
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>File</th>
-                  <th>Drive</th>
-                  <th style="text-align:right;">Size</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><span class="badge badge-primary">#1</span></td>
-                  <td><strong style="color:var(--text-white);">pakchunk10-WindowsClient.ucas</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">D:\Riot Games\VALORANT\...</span></td>
-                  <td><span class="badge badge-neutral">D:\</span></td>
-                  <td style="text-align:right; font-weight:700; color:var(--ice-bright);">18.69 GB</td>
-                </tr>
-                <tr>
-                  <td><span class="badge badge-primary">#2</span></td>
-                  <td><strong style="color:var(--text-white);">Sekiro-Shadows-Die-Twice.rar</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">D:\Games\...</span></td>
-                  <td><span class="badge badge-neutral">D:\</span></td>
-                  <td style="text-align:right; font-weight:700; color:var(--ice-bright);">13.22 GB</td>
-                </tr>
-                <tr>
-                  <td><span class="badge badge-white">#3</span></td>
-                  <td><strong style="color:var(--text-white);">Windows11_Client_x64.iso</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">E:\$RECYCLE.BIN\...</span></td>
-                  <td><span class="badge badge-primary">Recycle Bin</span></td>
-                  <td style="text-align:right; font-weight:700; color:var(--text-white);">8.43 GB</td>
-                </tr>
-                <tr>
-                  <td><span class="badge badge-neutral">#4</span></td>
-                  <td><strong style="color:var(--text-white);">tiny11.iso</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">E:\$RECYCLE.BIN\...</span></td>
-                  <td><span class="badge badge-primary">Recycle Bin</span></td>
-                  <td style="text-align:right; font-weight:700; color:var(--text-white);">5.30 GB</td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- Drive C Optimization Suggestions -->
+          <div class="card" style="margin-top:2rem;">
+            <div class="card-header">
+              <div class="card-title">Optimal Suggestions for Drive C:\</div>
+              <span class="badge badge-primary">High Impact</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div class="suggestion-item">
+                <div class="suggestion-info">
+                  <strong>Clean Temporary Files &amp; Windows Prefetch Cache</strong>
+                  <p>Old installer caches in <code>C:\Windows\Temp</code> and <code>%LOCALAPPDATA%\Temp</code> are taking 4.2 GB of space.</p>
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="notify('Cleaned 4.2 GB from C: Temp directory!')">Clean 4.2 GB</button>
+              </div>
+
+              <div class="suggestion-item">
+                <div class="suggestion-info">
+                  <strong>Purge Delivery Optimization &amp; Update Backups</strong>
+                  <p>Cached Windows Update installers in <code>C:\Windows\SoftwareDistribution</code> can be safely pruned.</p>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="notify('Delivery Optimization cache purged (Saved 3.8 GB)!')">Purge 3.8 GB</button>
+              </div>
+
+              <div class="suggestion-item">
+                <div class="suggestion-info">
+                  <strong>Compress Inactive System Files with CompactOS</strong>
+                  <p>Reduces footprint of uncompressed OS binaries without any performance degradation.</p>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="notify('CompactOS triggered: saving ~3.0 GB')">Compact OS</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drive C Top Files Table -->
+          <div class="card" style="margin-top:2rem;">
+            <div class="card-header">
+              <div class="card-title">Top Heaviest Files in Drive C:\</div>
+              <button class="btn btn-sm btn-outline" onclick="notify('Drive C: scan refreshed')">Refresh</button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>File Path</th>
+                    <th>Category</th>
+                    <th style="text-align:right;">Size</th>
+                    <th style="text-align:center;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="badge badge-primary">#1</span></td>
+                    <td><strong style="color:var(--text-white);">pagefile.sys</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">C:\pagefile.sys</span></td>
+                    <td><span class="badge badge-neutral">Virtual RAM</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--ice-bright);">4.75 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-outline" onclick="notify('System managed paging')">Inspect</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-primary">#2</span></td>
+                    <td><strong style="color:var(--text-white);">hiberfil.sys</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">C:\hiberfil.sys</span></td>
+                    <td><span class="badge badge-neutral">Hibernation</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--ice-bright);">3.20 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-outline" onclick="notify('Hibernation state intact')">Inspect</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-primary">#3</span></td>
+                    <td><strong style="color:var(--text-white);">Windows.edb</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">C:\ProgramData\Microsoft\Search\Data\Applications\Windows\Windows.edb</span></td>
+                    <td><span class="badge badge-neutral">Search Index</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--ice-bright);">2.40 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-outline" onclick="notify('Index verified')">Inspect</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
+
+        <!-- DRIVE D:\ DIRECTORY VIEW -->
+        <div id="drive-d" class="drive-pane">
+          <!-- Drive D Stats Row -->
+          <div class="grid-3">
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-size:0.8rem; color:var(--text-dim);">Available Space</div>
+              <div class="metric-number" style="font-size:1.9rem; margin-top:0.35rem; color:var(--text-white);">268.3 GB</div>
+              <div style="font-size:0.8rem; color:var(--text-ice); margin-top:0.25rem;">of 931.5 GB Total Capacity</div>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-size:0.8rem; color:var(--text-dim);">Filesystem &amp; Volume</div>
+              <div class="metric-number" style="font-size:1.9rem; margin-top:0.35rem; color:var(--text-white);">NTFS</div>
+              <div style="font-size:0.8rem; color:var(--text-ice); margin-top:0.25rem;">Volume Serial: 9A44-7B21</div>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-size:0.8rem; color:var(--text-dim);">Potential Cleanup Savings</div>
+              <div class="metric-number" style="font-size:1.9rem; margin-top:0.35rem; color:var(--ice-bright);">~22.0 GB</div>
+              <div style="font-size:0.8rem; color:var(--text-ice); margin-top:0.25rem;">Duplicate archives &amp; Recycle Bin</div>
+            </div>
+          </div>
+
+          <!-- Drive D Optimization Suggestions -->
+          <div class="card" style="margin-top:2rem;">
+            <div class="card-header">
+              <div class="card-title">Optimal Suggestions for Drive D:\</div>
+              <span class="badge badge-primary">Optimal Recovery</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div class="suggestion-item">
+                <div class="suggestion-info">
+                  <strong>Empty Drive D:\ Recycle Bin Container</strong>
+                  <p>A deleted <code>Factorio-SteamRIP.rar</code> package is still taking <strong>8.86 GB</strong> inside <code>D:\$RECYCLE.BIN</code>.</p>
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="notify('Drive D: Recycle Bin emptied! Freed 8.86 GB')">Empty Bin (8.86 GB)</button>
+              </div>
+
+              <div class="suggestion-item">
+                <div class="suggestion-info">
+                  <strong>Delete Extracted Game Archive (Sekiro.rar)</strong>
+                  <p>Game is already installed at <code>D:\Games\Sekiro</code>. The original installer archive takes <strong>13.22 GB</strong>.</p>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="notify('Archive queued for deletion (Reclaims 13.22 GB)')">Remove Archive (13.2 GB)</button>
+              </div>
+
+              <div class="suggestion-item">
+                <div class="suggestion-info">
+                  <strong>Prune Stale Rust Cargo Build Artifacts</strong>
+                  <p>Directories under <code>D:\memReport\cpu_usage\target\debug</code> contain incremental cache files (320 MB).</p>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="notify('Cargo clean simulated: target cache purged')">Clean Target</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drive D Top Files Table -->
+          <div class="card" style="margin-top:2rem;">
+            <div class="card-header">
+              <div class="card-title">Top Heaviest Files in Drive D:\</div>
+              <button class="btn btn-sm btn-outline" onclick="notify('Drive D: scan refreshed')">Refresh</button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>File Path</th>
+                    <th>Category</th>
+                    <th style="text-align:right;">Size</th>
+                    <th style="text-align:center;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="badge badge-primary">#1</span></td>
+                    <td><strong style="color:var(--text-white);">pakchunk10-WindowsClient.ucas</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">D:\Riot Games\VALORANT\live\ShooterGame\Content\Paks\...</span></td>
+                    <td><span class="badge badge-neutral">Game Asset</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--ice-bright);">18.69 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-outline" onclick="notify('Located file in Explorer')">Locate</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-primary">#2</span></td>
+                    <td><strong style="color:var(--text-white);">Sekiro-Shadows-Die-Twice-SteamRIP.rar</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">D:\Games\Sekiro-Shadows-Die-Twice-SteamRIP.com.rar</span></td>
+                    <td><span class="badge badge-primary">Archive</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--ice-bright);">13.22 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-outline" onclick="notify('Located file in Explorer')">Locate</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-primary">#3</span></td>
+                    <td><strong style="color:var(--text-white);">Factorio-SteamRIP.com.rar</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">D:\$RECYCLE.BIN\S-1-5-21-...\Factorio-SteamRIP.com.rar</span></td>
+                    <td><span class="badge badge-white">Recycle Bin</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--ice-bright);">8.86 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-primary" onclick="notify('Purged Factorio installer')">Purge</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-neutral">#4</span></td>
+                    <td><strong style="color:var(--text-white);">Data5.bdt</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">D:\Games\Sekiro\Data5.bdt</span></td>
+                    <td><span class="badge badge-neutral">Game Data</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--text-white);">6.36 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-outline" onclick="notify('Located file in Explorer')">Locate</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-neutral">#5</span></td>
+                    <td><strong style="color:var(--text-white);">pakchunk1-WindowsClient.ucas</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">D:\Riot Games\VALORANT\live\ShooterGame\Content\Paks\...</span></td>
+                    <td><span class="badge badge-neutral">Game Asset</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--text-white);">5.20 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-outline" onclick="notify('Located file in Explorer')">Locate</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- DRIVE E:\ DIRECTORY VIEW -->
+        <div id="drive-e" class="drive-pane">
+          <!-- Drive E Stats Row -->
+          <div class="grid-3">
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-size:0.8rem; color:var(--text-dim);">Available Space</div>
+              <div class="metric-number" style="font-size:1.9rem; margin-top:0.35rem; color:var(--text-white);">339.6 GB</div>
+              <div style="font-size:0.8rem; color:var(--text-ice); margin-top:0.25rem;">of 375.7 GB Total Capacity</div>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-size:0.8rem; color:var(--text-dim);">Filesystem &amp; Volume</div>
+              <div class="metric-number" style="font-size:1.9rem; margin-top:0.35rem; color:var(--text-white);">NTFS</div>
+              <div style="font-size:0.8rem; color:var(--text-ice); margin-top:0.25rem;">Volume Serial: 4C21-8890</div>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-size:0.8rem; color:var(--text-dim);">Immediate Reclaimable ISOs</div>
+              <div class="metric-number" style="font-size:1.9rem; margin-top:0.35rem; color:var(--ice-bright);">13.73 GB</div>
+              <div style="font-size:0.8rem; color:var(--text-ice); margin-top:0.25rem;">Old Windows 11 installation ISOs in Bin</div>
+            </div>
+          </div>
+
+          <!-- Drive E Optimization Suggestions -->
+          <div class="card" style="margin-top:2rem;">
+            <div class="card-header">
+              <div class="card-title">Optimal Suggestions for Drive E:\</div>
+              <span class="badge badge-primary">Immediate Recovery</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div class="suggestion-item">
+                <div class="suggestion-info">
+                  <strong>Permanently Remove Windows 11 Setup ISOs from Recycle Bin</strong>
+                  <p><code>Windows11_Client_x64_en-us_26300_9457.iso</code> (8.43 GB) and <code>tiny11.iso</code> (5.30 GB) are taking <strong>13.73 GB</strong>.</p>
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="notify('Purged 13.73 GB ISO images from Drive E:!')">Purge All (13.73 GB)</button>
+              </div>
+
+              <div class="suggestion-item">
+                <div class="suggestion-info">
+                  <strong>Consolidate Game Backup Archive</strong>
+                  <p>Archived data files under <code>E:\PEAK-SteamRIP.com</code> can be compressed into an efficient Zstandard archive.</p>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="notify('Archive optimization scheduled')">Optimize</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drive E Top Files Table -->
+          <div class="card" style="margin-top:2rem;">
+            <div class="card-header">
+              <div class="card-title">Top Heaviest Files in Drive E:\</div>
+              <button class="btn btn-sm btn-outline" onclick="notify('Drive E: scan refreshed')">Refresh</button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>File Path</th>
+                    <th>Category</th>
+                    <th style="text-align:right;">Size</th>
+                    <th style="text-align:center;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="badge badge-primary">#1</span></td>
+                    <td><strong style="color:var(--text-white);">Windows11_Client_x64_en-us_26300_9457.iso</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">E:\$RECYCLE.BIN\S-1-5-21-...\Windows11_Client_x64.iso</span></td>
+                    <td><span class="badge badge-white">Recycle Bin ISO</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--ice-bright);">8.43 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-primary" onclick="notify('Purged Windows 11 ISO (Freed 8.43 GB)')">Purge</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-primary">#2</span></td>
+                    <td><strong style="color:var(--text-white);">tiny11.iso</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">E:\$RECYCLE.BIN\S-1-5-21-...\tiny11.iso</span></td>
+                    <td><span class="badge badge-white">Recycle Bin ISO</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--ice-bright);">5.30 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-primary" onclick="notify('Purged Tiny11 ISO (Freed 5.30 GB)')">Purge</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-neutral">#3</span></td>
+                    <td><strong style="color:var(--text-white);">$R5HWB2O.zip</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">E:\$RECYCLE.BIN\S-1-5-21-...\$R5HWB2O.zip</span></td>
+                    <td><span class="badge badge-neutral">Zip Archive</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--text-white);">1.84 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-outline" onclick="notify('Purged zip file')">Purge</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-neutral">#4</span></td>
+                    <td><strong style="color:var(--text-white);">data.unity3d</strong><br/><span style="font-size:0.75rem; color:var(--text-dim);">E:\PEAK-SteamRIP.com\PEAK\PEAK_Data\data.unity3d</span></td>
+                    <td><span class="badge badge-neutral">Unity Asset</span></td>
+                    <td style="text-align:right; font-weight:700; color:var(--text-white);">1.40 GB</td>
+                    <td style="text-align:center;"><button class="btn btn-sm btn-outline" onclick="notify('Located in Explorer')">Locate</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- TAB 5: PROCESSES -->
@@ -1271,7 +1687,7 @@
             <div class="ai-suggestions">
               <span class="chip" onclick="askAI('What is using the most RAM right now?')">Top RAM usage?</span>
               <span class="chip" onclick="askAI('Which unused apps should I close?')">Find unused apps</span>
-              <span class="chip" onclick="askAI('Where can I free up disk space on Drive E:?')">Clean Drive E:</span>
+              <span class="chip" onclick="askAI('How can I optimize Drive C, D, and E?')">Drive optimization ideas</span>
             </div>
 
             <form class="ai-bar-form" onsubmit="submitAI(event)">
@@ -1341,14 +1757,14 @@
       'tab-overview': { title: 'Overview', sub: 'Real-time system health and hardware telemetry' },
       'tab-cpu': { title: 'CPU Usage', sub: 'Per-core workload balance across 24 threads' },
       'tab-memory': { title: 'Physical Memory', sub: 'DDR5 32 GB RAM utilization and pools' },
-      'tab-storage': { title: 'Storage & Drives', sub: 'Volume capacity and heaviest discovered files' },
+      'tab-storage': { title: 'Storage & Directories', sub: 'Select C:\\, D:\\, or E:\\ for granular metrics & optimization suggestions' },
       'tab-processes': { title: 'Processes', sub: 'Active application resource allocations' },
       'tab-unused': { title: 'Idle Apps', sub: 'Inactive background windows consuming memory' },
       'tab-ai': { title: 'Ask AI', sub: 'Natural language hardware diagnostics' },
       'tab-settings': { title: 'Configuration', sub: 'Backend connection endpoints and diagnostics' }
     };
 
-    // TAB SWITCHING (Works on Hover and Click)
+    // MAIN TAB SWITCHING (Works on Hover and Click)
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
@@ -1364,6 +1780,18 @@
         document.getElementById('page-title').innerText = tabMeta[tabId].title;
         document.getElementById('page-subtitle').innerText = tabMeta[tabId].sub;
       }
+    }
+
+    // STORAGE SUB-TAB SWITCHING: C, D, E
+    function switchDriveTab(driveId) {
+      document.querySelectorAll('.drive-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.drive-tab-btn').forEach(el => el.classList.remove('active'));
+
+      const target = document.getElementById(driveId);
+      if (target) target.classList.add('active');
+
+      const btn = document.getElementById(`btn-${driveId}`);
+      if (btn) btn.classList.add('active');
     }
 
     // Toast notification
@@ -1423,7 +1851,7 @@
       notify(`Process ${pid} terminated`);
     }
 
-    // Real-time Canvas Chart with Dark Blue & Ice Blue glow
+    // Real-time Canvas Chart
     function drawChart() {
       const canvas = document.getElementById('overview-chart');
       if (!canvas) return;
@@ -1562,12 +1990,13 @@
           <br/>&bull; <strong>Discord</strong> (Tray minimized &bull; 1.1 GB RAM)
           <br/>&bull; <strong>Spotify</strong> (Paused &bull; 870 MB RAM)
           <br/><br/>Suspending them reclaims <strong>3.82 GB RAM</strong> instantly.`;
-        } else if (q.includes('drive') || q.includes('space') || q.includes('disk') || q.includes('file')) {
-          answer = `Drive summary:
-          <br/>&bull; <strong>C:\\</strong> is at 86% capacity (63 GB remaining).
-          <br/>&bull; <strong>E:\\</strong> has <strong>13.7 GB</strong> in <code>$RECYCLE.BIN</code> (including <code>Windows11_Client_x64.iso</code>). Emptying Recycle Bin will immediately free up space.`;
+        } else if (q.includes('drive') || q.includes('space') || q.includes('disk') || q.includes('file') || q.includes('storage') || q.includes('c') || q.includes('d') || q.includes('e')) {
+          answer = `Drive optimization suggestions:
+          <br/>&bull; <strong>Drive C:</strong> Clean <code>Temp</code> &amp; Delivery Optimization files to recover <strong>~8.0 GB</strong>.
+          <br/>&bull; <strong>Drive D:</strong> Empty <code>$RECYCLE.BIN</code> and delete extracted <code>Sekiro.rar</code> to gain <strong>~22.0 GB</strong>.
+          <br/>&bull; <strong>Drive E:</strong> Purge <code>Windows11_Client_x64.iso</code> and <code>tiny11.iso</code> from Recycle Bin to immediately free <strong>13.73 GB</strong>.`;
         } else {
-          answer = `Your system is running smoothly with <strong>${Math.round(state.cpu)}% CPU load</strong> and 17.6 GB RAM headroom. Emptying the Recycle Bin on Drive E: is recommended for storage optimization.`;
+          answer = `Your system is running smoothly with <strong>${Math.round(state.cpu)}% CPU load</strong> and 17.6 GB RAM headroom. Check the <em>Storage</em> tab to optimize Drive C, D, and E directories individually.`;
         }
         appendMsg('bot', answer);
       }, 500);
