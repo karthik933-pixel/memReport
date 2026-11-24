@@ -3,4 +3,3 @@ memReport is a desktop system monitoring application that tracks running process
 
 
 <!-- system telemetry monitor -->
-<!-- build config profile -->
